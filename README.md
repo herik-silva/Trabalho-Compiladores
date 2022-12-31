@@ -1,3 +1,3 @@
 # Lista de Recursos
-- [] Exemplo não feito
-- [x] Exemplo feito
+:white_large_square Exemplo não feito
+:white_check_mark Exemplo feito
