@@ -5,3 +5,5 @@ scanner = AnalisadorLexico("file.txt")
 
 #print(len(scanner._conteudo))
 scanner.token()
+
+
