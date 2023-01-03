@@ -1,1 +1,3 @@
-"Teste so";
+SE NAO12>18;
+NAO
+OU;

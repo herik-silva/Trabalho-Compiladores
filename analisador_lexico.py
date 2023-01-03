@@ -63,6 +63,10 @@ class AnalisadorLexico:
                 elif self._char_atual == '"':
                     self._cadeia += self._char_atual
                     self._estado = 5
+                elif self._ehCharUp(self._char_atual):
+                    self._cadeia+= self._char_atual
+                    self._estado = 25
+                    
 
             elif self._estado == 1:
                 if self._ehCharLower(self._char_atual) or self._ehCharUp(self._char_atual) or self._ehDigito(self._char_atual):
@@ -134,5 +138,19 @@ class AnalisadorLexico:
                 self._char_atual = ''
                 self._cadeia = ''
                 self._estado = 0
+            
+            elif self._estado == 25:
+                if self._cadeia in self._palavra_reservada:
+                    print('Token aceito: Palavra Reservada <', self._cadeia, '>')
+                    self._char_atual = ''
+                    self._cadeia = ''
+                    self._estado = 0
+                elif self._cadeia in self._operador_logico:
+                    print('Token aceito: Operador lógico <', self._cadeia, '>')
+                    self._char_atual = ''
+                    self._cadeia = ''
+                    self._estado = 0
+                
+                self._cadeia += self._char_atual
                 
                     
