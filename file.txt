@@ -1,6 +1,1 @@
-123;
-123b;
-/%/ abc23;
-aux <= 2;
-/;
-/%/ alskdhglaskdhg2
+"Teste so";

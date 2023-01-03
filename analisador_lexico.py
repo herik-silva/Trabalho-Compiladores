@@ -4,6 +4,8 @@ class AnalisadorLexico:
         self._palavra_reservada = ['NAO', 'E', 'OU', 'SE', 'SENAO', 'SENAOSE', 'LACO', 'LACOPARA', 'RETORNE', 'INTEIRO', 'BOOLEANO', 'CONSTANTE', 'VAZIO', 'TEXTO']
         self._pos = 0 
         self._estado = 0
+        self.char_atual = ''
+        self.cadeia = ''
         arquivo = open(path, 'r')
         self._conteudo = arquivo.read()
         arquivo.close()
@@ -24,7 +26,7 @@ class AnalisadorLexico:
     def __ehOperadorMat(self, char: chr):
         return char == '+' or char == '-' or char == '*' or char == '/' or char == '%' """
     
-    def __isSpace(self, char:chr): #Rever a função
+    def __isSpace(self, char: chr): #Rever a função
         return char == ' ' or char == '\t' or char == '\n' or char == '\r'
     
     def __isEOF(self):
@@ -41,90 +43,105 @@ class AnalisadorLexico:
     def retrocesso(self):
         self._pos -= 1
 
-    def token(self):
-        char_atual = ''
-        cadeia = ''
+    def estadoFinal(self, tipoReconhecido: str):
+            """Reinicia os atributos e exibe o Token aceito"""
+            print('Token aceito: ', tipoReconhecido, '<', self.cadeia, '>')
+            self.char_atual = ''
+            self.cadeia = ''
+            self._estado = 0
 
+    def token(self):
         while(True):
             if self.__isEOF():
                 return 
              
-            char_atual = self.nextChar()
+            self.char_atual = self.nextChar()
             if self._estado == 0:
-                if self.__ehDigito(char_atual):
-                    cadeia += char_atual
+                if self.__ehDigito(self.char_atual):
+                    self.cadeia += self.char_atual
                     self._estado = 3
-                elif self.__ehCharLower(char_atual):
-                    cadeia += char_atual
+                elif self.__ehCharLower(self.char_atual):
+                    self.cadeia += self.char_atual
                     self._estado = 1
-                elif char_atual == "/":
-                    cadeia += char_atual
-                    self._estado = 8 
+                elif self.char_atual == "/":
+                    self.cadeia += self.char_atual
+                    self._estado = 8
+                elif self.char_atual == '"':
+                    self.cadeia += self.char_atual
+                    self._estado = 5
+                    print("INICIO DA PALAVRA")
 
             elif self._estado == 1:
-                if self.__ehCharLower(char_atual) or self.__ehCharUp(char_atual) or self.__ehDigito(char_atual):
-                    cadeia += char_atual
+                if self.__ehCharLower(self.char_atual) or self.__ehCharUp(self.char_atual) or self.__ehDigito(self.char_atual):
+                    self.cadeia += self.char_atual
                 else:  
                     self._estado = 2
                     self.retrocesso()
             
             elif self._estado == 2:
-                print('Token aceito: Identificador<', cadeia, '>')
-                char_atual = ''
-                cadeia = ''
+                print('Token aceito: Identificador<', self.cadeia, '>')
+                self.char_atual = ''
+                self.cadeia = ''
                 self._estado = 0
 
             elif self._estado == 3:
-                if self.__ehDigito(char_atual):
-                    cadeia += char_atual
+                if self.__ehDigito(self.char_atual):
+                    self.cadeia += self.char_atual
 
                 else: 
-                    if not (self.__ehCharUp(char_atual) or self.__ehCharLower(char_atual)):
+                    if not (self.__ehCharUp(self.char_atual) or self.__ehCharLower(self.char_atual)):
                        self._estado = 4
                        self.retrocesso()
                     else:
                         print('Erro estado 3, digito invalido')
-                        char_atual = ''
-                        cadeia = ''
+                        self.char_atual = ''
+                        self.cadeia = ''
                         self._estado = 0
                         
-            elif self._estado == 4:
-                print('Token aceito: Inteiro<', cadeia, '>')
-                char_atual = ''
-                cadeia = ''
-                self._estado = 0
+            elif self._estado == 4: # Estado Final gerando NUM_INTEIRO
+                self.estadoFinal("Inteiro")
                 self.retrocesso()
             
-            elif self._estado == 5:
-                pass
+            elif self._estado == 5: # Início do reconhecimento de PALAVRA
+                self.cadeia += self.char_atual
+                self._estado = 6
+                print("QUALQUER SIMBOLO")
+
             elif self._estado == 6:
-                pass
-            elif self._estado == 7:
-                pass
+                self.cadeia += self.char_atual
+                print(self.cadeia)
+                if self.char_atual == '"':
+                    print("INDO PARA O ESTADO FINAL")
+                    self._estado = 7
+
+            elif self._estado == 7: # Estado Final gerando PALAVRA
+                self.estadoFinal("Palavra")
+                self.retrocesso()
+
             elif self._estado == 8:
-                if char_atual != '%':
+                if self.char_atual != '%':
                     self._estado = 18
                     self.retrocesso()
-                elif char_atual == '%':
-                    cadeia += char_atual
+                elif self.char_atual == '%':
+                    self.cadeia += self.char_atual
                     self._estado = 9
             elif self._estado == 9:
-                if char_atual == '/':
-                    cadeia += char_atual
+                if self.char_atual == '/':
+                    self.cadeia += self.char_atual
                     self._estado = 10
             elif self._estado == 10:
-                if char_atual != "\n": #Não usamos is_space porque trata todos
-                    cadeia += char_atual
+                if self.char_atual != "\n": #Não usamos is_space porque trata todos
+                    self.cadeia += self.char_atual
                 else:
-                    print("Comentário: ",cadeia)
+                    print("Comentário: ",self.cadeia)
                     self.retrocesso()
                     self._estado = 0
 
                 
             elif self._estado == 18:
-                print('Token aceito: <', cadeia, '>')
-                char_atual = ''
-                cadeia = ''
+                print('Token aceito: <', self.cadeia, '>')
+                self.char_atual = ''
+                self.cadeia = ''
                 self._estado = 0
                 
                     
