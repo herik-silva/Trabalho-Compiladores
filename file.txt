@@ -1,3 +1,28 @@
-SE NAO12>18;
-NAO
-OU;
+SE int OU aux;
+SENAO int OU aux
+SENAOSE auxiliar;
+LACO i()#
+LACOPARA
+    int <= int + 1;
+i()#
+RETORNE agora;
+INTEIRO inteiro;
+BOOLEANO bool
+CONSTANTE x;
+VAZIO
+TEXTO texto;
+"este é um texto";
+
+NAO int 
+E int;
+OU int
+
+identificador identificador1; id2; i; j
+1
+1;
+12
+/%/12;345345;
+/%/ comentario
+/%/coment2
+
+INTEIRO;

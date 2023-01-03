@@ -20,7 +20,13 @@ class AnalisadorLexico:
     def _ehCharLower(self, char: chr):
         return char >= 'a' and char <= 'z'
 
-    def _ehEpaco(self, char: chr): #Rever a função
+    def _ehSimbolo(self, char: chr):
+        return char == ';' or char == '(' or char == ')' or char == '[' or char == ']' or char == '#'
+
+    def _ehOperadorMat(self, char: chr):
+        return char == '+' or char == '-' or char == '*' or char == '%' 
+    
+    def _ehEspaco(self, char: chr): #Rever a função
         return char == ' ' or char == '\t' or char == '\n' or char == '\r'
     
     def _ehEOF(self):
@@ -28,8 +34,7 @@ class AnalisadorLexico:
     
     def _proximoChar(self):
         if self._ehEOF():
-            return '\0'
-
+            return None
         aux = self._conteudo[self._pos_arquivo]
         self._pos_arquivo += 1
         return aux
@@ -45,112 +50,135 @@ class AnalisadorLexico:
             self._estado = 0
 
     def token(self):
-        while(True):
-            if self._ehEOF():
-                return 
-             
+        while(True): 
+            
             self._char_atual = self._proximoChar()
+            if not self._char_atual:
+                return 
+
             if self._estado == 0:
-                if self._ehDigito(self._char_atual):
-                    self._cadeia += self._char_atual
-                    self._estado = 3
-                elif self._ehCharLower(self._char_atual):
+                if self._ehCharLower(self._char_atual):
                     self._cadeia += self._char_atual
                     self._estado = 1
-                elif self._char_atual == '/':
+                    if self._ehEOF():
+                        self._estadoFinal('IDENTIFICADOR')
+                elif self._ehDigito(self._char_atual):
                     self._cadeia += self._char_atual
-                    self._estado = 8
+                    self._estado = 3
+                    if self._ehEOF():
+                        self._estadoFinal('IDENTIFICADOR')
                 elif self._char_atual == '"':
                     self._cadeia += self._char_atual
                     self._estado = 5
+                elif self._char_atual == '/':
+                    self._cadeia += self._char_atual
+                    self._estado = 7
+                    if self._ehEOF():
+                        self._estadoFinal(self._cadeia)
+                elif self._ehOperadorMat(self._char_atual):
+                    self._cadeia += self._char_atual
+                    self._estado = 12
+                    if self._ehEOF():
+                        self._estadoFinal(self._cadeia)
+                elif self._ehSimbolo(self._char_atual):
+                    self._cadeia += self._char_atual
+                    self._estado = 13
+                    if self._ehEOF():
+                        self._estadoFinal(self._cadeia)
                 elif self._ehCharUp(self._char_atual):
-                    self._cadeia+= self._char_atual
-                    self._estado = 25
-                    
+                    self._cadeia += self._char_atual
+                    self._estado = 14
+                    if self._ehEOF():
+                        if self._cadeia in self._operador_logico:
+                            self._estadoFinal('OPERADOR LOGICO')
+                        else:
+                            print('Erro estado 0 para 14')
 
             elif self._estado == 1:
                 if self._ehCharLower(self._char_atual) or self._ehCharUp(self._char_atual) or self._ehDigito(self._char_atual):
                     self._cadeia += self._char_atual
-                else:  
-                    self._estado = 2
+                    #Verifica se é o ultimo caracter do arquivo
+                    if self._ehEOF():
+                        self._estadoFinal('IDENTIFICADOR')
+                else:  #Estado 2
+                    self._estadoFinal('IDENTIFICADOR')
                     self._retrocesso()
             
-            elif self._estado == 2:
-                print('Token aceito: Identificador<', self._cadeia, '>')
-                self._char_atual = ''
-                self._cadeia = ''
-                self._estado = 0
-
             elif self._estado == 3:
                 if self._ehDigito(self._char_atual):
                     self._cadeia += self._char_atual
+                    #Verifica se é o ultimo digito do arquivo
+                    if self._ehEOF():
+                        self._estadoFinal('NUM_INTEIRO')
+                #Estado 4
                 elif not (self._ehCharUp(self._char_atual) or self._ehCharLower(self._char_atual)):
-                       self._estado = 4
+                       self._estadoFinal('NUM_INTEIRO')
                        self._retrocesso()
                 else:
                     print('Erro estado 3, digito invalido')
                     self._char_atual = ''
                     self._cadeia = ''
                     self._estado = 0
-                        
-            elif self._estado == 4: # Estado Final gerando NUM_INTEIRO
-                self._estadoFinal("Inteiro")
-                self._retrocesso()
-            
+
             elif self._estado == 5: # Início do reconhecimento de PALAVRA
-                self._cadeia += self._char_atual
-                self._estado = 6
-                print("QUALQUER SIMBOLO")
-
-            elif self._estado == 6:
-                self._cadeia += self._char_atual
-                print(self._cadeia)
-                if self._char_atual == '"':
-                    print("INDO PARA O ESTADO FINAL")
-                    self._estado = 7
-
-            elif self._estado == 7: # Estado Final gerando PALAVRA
-                self._estadoFinal("Palavra")
-                self._retrocesso()
+                if self._char_atual != '"':
+                    self._cadeia += self._char_atual
+                #Estado 6
+                else:
+                    self._cadeia += self._char_atual
+                    self._estadoFinal("PALAVRA")
+            
+            elif self._estado == 7:
+                if self._char_atual == '%':
+                    self._cadeia += self._char_atual
+                    self._estado = 8
+                #Estado 11
+                else:
+                    self._estadoFinal('/')
+                    self._retrocesso()
 
             elif self._estado == 8:
-                if self._char_atual != '%':
-                    self._estado = 18
-                    self._retrocesso()
-                elif self._char_atual == '%':
-                    self._cadeia += self._char_atual
-                    self._estado = 9
-            elif self._estado == 9:
                 if self._char_atual == '/':
                     self._cadeia += self._char_atual
-                    self._estado = 10
-            elif self._estado == 10:
-                if self._char_atual != "\n": #Não usamos is_space porque trata todos
-                    self._cadeia += self._char_atual
+                    self._estado = 9
                 else:
-                    print("Comentário: ",self._cadeia)
-                    self._retrocesso()
-                    self._estado = 0
+                    print('Erro estado 8, símbolo invalido')
 
+            elif self._estado == 9:
+                if self._char_atual != '\n' and not self._ehEOF():
+                    self._cadeia += self._char_atual
+                #Estado 10
+                elif self._char_atual == '\n':
+                    self._estadoFinal('COMENTARIO')
+                else:
+                    self._cadeia += self._char_atual
+                    self._estadoFinal('COMENTARIO')
                 
-            elif self._estado == 18:
-                print('Token aceito: <', self._cadeia, '>')
-                self._char_atual = ''
-                self._cadeia = ''
-                self._estado = 0
+            elif self._estado == 12:
+                self._estadoFinal(self._cadeia)
+                self._retrocesso()
+
+            elif self._estado == 13:
+                self._estadoFinal(self._cadeia)
+                self._retrocesso()
             
-            elif self._estado == 25:
-                if self._cadeia in self._palavra_reservada:
-                    print('Token aceito: Palavra Reservada <', self._cadeia, '>')
-                    self._char_atual = ''
-                    self._cadeia = ''
-                    self._estado = 0
-                elif self._cadeia in self._operador_logico:
-                    print('Token aceito: Operador lógico <', self._cadeia, '>')
-                    self._char_atual = ''
-                    self._cadeia = ''
-                    self._estado = 0
+            elif self._estado == 14:
+                if self._ehCharUp(self._char_atual):
+                    self._cadeia += self._char_atual
+                    if self._ehEOF():
+                        if self._cadeia in self._palavra_reservada:
+                            self._estadoFinal('PALAVRA RESERVADA')
+                        elif self._cadeia in self._operador_logico:
+                            self._estadoFinal('OPERADOR LOGICO')
+                #Estado 15
+                else:
+                    if self._cadeia in self._palavra_reservada:
+                        self._estadoFinal('PALAVRA RESERVADA')
+                        self._retrocesso()
+                    elif self._cadeia in self._operador_logico:
+                        self._estadoFinal('OPERADOR LOGICO')
+                        self._retrocesso()
                 
-                self._cadeia += self._char_atual
+                   
                 
                     
