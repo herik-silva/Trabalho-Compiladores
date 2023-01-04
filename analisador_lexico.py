@@ -42,13 +42,16 @@ class AnalisadorLexico:
     def _retrocesso(self):
         self._pos_arquivo -= 1
 
+    def _limpar(self):
+        self._char_atual = ''
+        self._cadeia = ''
+        self._estado = 0
+
     def _estadoFinal(self, tipoReconhecido: str):
             """Reinicia os atributos e exibe o Token aceito"""
             print('Token aceito: ', tipoReconhecido, '<', self._cadeia, '>')
-            self._char_atual = ''
-            self._cadeia = ''
-            self._estado = 0
-
+            self._limpar()
+        
     def token(self):
         while(True): 
             
@@ -93,6 +96,16 @@ class AnalisadorLexico:
                             self._estadoFinal('OPERADOR LOGICO')
                         else:
                             print('Erro estado 0 para 14')
+                            self._limpar()
+                elif self._char_atual == '=':
+                    self._cadeia += self._char_atual
+                    self._estado = 16
+                elif self._char_atual == '<':
+                    self._cadeia += self._char_atual
+                    self._estado = 18
+                elif self._char_atual == '>':
+                    self._cadeia += self._char_atual
+                    self._estado = 22
 
             elif self._estado == 1:
                 if self._ehCharLower(self._char_atual) or self._ehCharUp(self._char_atual) or self._ehDigito(self._char_atual):
@@ -116,9 +129,7 @@ class AnalisadorLexico:
                        self._retrocesso()
                 else:
                     print('Erro estado 3, digito invalido')
-                    self._char_atual = ''
-                    self._cadeia = ''
-                    self._estado = 0
+                    self._limpar()
 
             elif self._estado == 5: # Início do reconhecimento de PALAVRA
                 if self._char_atual != '"':
@@ -143,6 +154,7 @@ class AnalisadorLexico:
                     self._estado = 9
                 else:
                     print('Erro estado 8, símbolo invalido')
+                    self._limpar()
 
             elif self._estado == 9:
                 if self._char_atual != '\n' and not self._ehEOF():
@@ -170,6 +182,9 @@ class AnalisadorLexico:
                             self._estadoFinal('PALAVRA RESERVADA')
                         elif self._cadeia in self._operador_logico:
                             self._estadoFinal('OPERADOR LOGICO')
+                        else:
+                            print('ERROR PALAVRA RESERVADA ou OPERADOR LOGICO')
+                            self._limpar()
                 #Estado 15
                 else:
                     if self._cadeia in self._palavra_reservada:
@@ -178,7 +193,66 @@ class AnalisadorLexico:
                     elif self._cadeia in self._operador_logico:
                         self._estadoFinal('OPERADOR LOGICO')
                         self._retrocesso()
-                
-                   
-                
+                    else:
+                        print('ERROR PALAVRA RESERVADA ou OPERADOR LOGICO')
+                        self._limpar()
+
+            elif self._estado == 16:
+                if self._char_atual == '?':
+                    self._cadeia += self._char_atual
+                    self._estadoFinal(self._cadeia)
+
+            elif self._estado == 18:
+                #Estado 17
+                if self._char_atual == '?':
+                    self._cadeia += self._char_atual
+                    self._estadoFinal(self._cadeia)
+                #Estado 19
+                elif self._char_atual == '=':
+                    self._cadeia += self._char_atual
+                    if self._ehEOF():
+                        self._estadoFinal(self._cadeia)
+                    #Estado 20
+                    else:
+                        self._char_atual = self._proximoChar()
+                        #Estado 20
+                        if self._char_atual != '?':
+                            self._estadoFinal(self._cadeia)
+                        #Estado 17
+                        else:
+                            self._cadeia += self._char_atual
+                            self._estadoFinal(self._cadeia)
+                #Estado 21
+                elif self._char_atual == '>':
+                    self._cadeia += self._char_atual
+                    self._char_atual = self._proximoChar()
+                    #Estado 17
+                    if self._char_atual == '?':
+                        self._cadeia += self._char_atual
+                        self._estadoFinal(self._cadeia)
+                    else:
+                        print('Erro estado 18 <>')
+                        self._limpar()
+
+            elif self._estado == 22:
+                #Estado 17
+                if self._char_atual == '?':
+                    self._cadeia += self._char_atual
+                    self._estadoFinal(self._cadeia)
+                #Estado 23
+                elif self._char_atual == '=':
+                    self._cadeia += self._char_atual
+                    if self._ehEOF():
+                        print('ERROR estado 22 >=')
+                        self._limpar()
+                    else:
+                        self._char_atual = self._proximoChar()
+                        #Estado 17
+                        if self._char_atual == '?':
+                            self._cadeia += self._char_atual
+                            self._estadoFinal(self._cadeia)
+                        else:
+                            print('ERROR estado 22 >=x')
+                            self._limpar()
+            
                     

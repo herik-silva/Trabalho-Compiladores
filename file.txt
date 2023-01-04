@@ -3,7 +3,7 @@ SENAO int OU aux
 SENAOSE auxiliar;
 LACO i()#
 LACOPARA
-    int <= int + 1;
+    int  int + 1;
 i()#
 RETORNE agora;
 INTEIRO inteiro;
@@ -25,4 +25,17 @@ identificador identificador1; id2; i; j
 /%/ comentario
 /%/coment2
 
-INTEIRO;
+INTEIRO i <= 12; INTEIRO j <= 24;
+
+SE i <? j;
+SENAO J <= 15;
+
+<? 
+<=?
+i <= 0;
+<>?;
+>?;
+>=;
+>=?;
+j >=? K;
+l >? q;
