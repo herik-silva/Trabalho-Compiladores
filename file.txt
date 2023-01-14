@@ -1,2 +1,3 @@
 PRINCIPAL #
-    123 * 133 + 123;
+    INTEIRO var <= "sffdf";
+#
