@@ -1,12 +1,12 @@
+from token_ import Token
+
 class AnalisadorLexico:
     
     def __init__(self, path: str) -> None:
-        self._palavra_reservada = ['SE', 'SENAO', 'SENAOSE', 'LACO', 'LACOPARA', 'RETORNE', 'INTEIRO', 'BOOLEANO', 'CONSTANTE', 'VAZIO', 'TEXTO']
+        self._palavra_reservada = ['PRINCIPAL', 'TEXTO', 'INTEIRO', 'CONSTANTE', 'SE', 'SENAO', 
+                    'SENAOSE', 'ENQUANTO', 'PARA', 'RETORNE', 'VERDADEIRO', 'FALSO']
         self._operador_logico = ['NAO', 'E', 'OU']
         self._pos_arquivo = 0 
-        self._estado = 0
-        self._char_atual = ''
-        self._cadeia = ''
         arquivo = open(path, 'r')
         self._conteudo = arquivo.read()
         arquivo.close()
@@ -46,57 +46,60 @@ class AnalisadorLexico:
         self._char_atual = ''
         self._cadeia = ''
         self._estado = 0
-
-    def _estadoFinal(self, tipoReconhecido: str):
-            """Reinicia os atributos e exibe o Token aceito"""
-            print('Token aceito: ', tipoReconhecido, '<', self._cadeia, '>')
-            self._limpar()
         
-    def token(self):
+    def proximoToken(self):
+        self._limpar()
         while(True): 
             
             self._char_atual = self._proximoChar()
             if not self._char_atual:
-                return 
+                return None
 
             if self._estado == 0:
                 if self._ehCharLower(self._char_atual):
                     self._cadeia += self._char_atual
                     self._estado = 1
                     if self._ehEOF():
-                        self._estadoFinal('IDENTIFICADOR')
+                        return Token(0, self._cadeia)
+
                 elif self._ehDigito(self._char_atual):
                     self._cadeia += self._char_atual
                     self._estado = 3
                     if self._ehEOF():
-                        self._estadoFinal('IDENTIFICADOR')
+                        return Token(0, self._cadeia)
+
                 elif self._char_atual == '"':
                     self._cadeia += self._char_atual
                     self._estado = 5
+
                 elif self._char_atual == '/':
                     self._cadeia += self._char_atual
                     self._estado = 7
                     if self._ehEOF():
-                        self._estadoFinal(self._cadeia)
+                        return Token(5, self._cadeia)
+                        
                 elif self._ehOperadorMat(self._char_atual):
                     self._cadeia += self._char_atual
                     self._estado = 12
                     if self._ehEOF():
-                        self._estadoFinal(self._cadeia)
+                        return Token(5, self._cadeia)
+
                 elif self._ehSimbolo(self._char_atual):
                     self._cadeia += self._char_atual
                     self._estado = 13
                     if self._ehEOF():
-                        self._estadoFinal(self._cadeia)
+                        return Token(4, self._cadeia)
+
                 elif self._ehCharUp(self._char_atual):
                     self._cadeia += self._char_atual
                     self._estado = 14
                     if self._ehEOF():
                         if self._cadeia in self._operador_logico:
-                            self._estadoFinal('OPERADOR LOGICO')
+                            return Token(7, self._cadeia)
                         else:
                             print('Erro estado 0 para 14')
                             self._limpar()
+
                 elif self._char_atual == '=':
                     self._cadeia += self._char_atual
                     self._estado = 16
@@ -112,21 +115,22 @@ class AnalisadorLexico:
                     self._cadeia += self._char_atual
                     #Verifica se é o ultimo caracter do arquivo
                     if self._ehEOF():
-                        self._estadoFinal('IDENTIFICADOR')
+                        return Token(0, self._cadeia)
                 else:  #Estado 2
-                    self._estadoFinal('IDENTIFICADOR')
                     self._retrocesso()
+                    return Token(0, self._cadeia)
+                    
             
             elif self._estado == 3:
                 if self._ehDigito(self._char_atual):
                     self._cadeia += self._char_atual
                     #Verifica se é o ultimo digito do arquivo
                     if self._ehEOF():
-                        self._estadoFinal('NUM_INTEIRO')
+                        return Token(1, self._cadeia)
                 #Estado 4
                 elif not (self._ehCharUp(self._char_atual) or self._ehCharLower(self._char_atual)):
-                       self._estadoFinal('NUM_INTEIRO')
                        self._retrocesso()
+                       return Token(1, self._cadeia)
                 else:
                     print('Erro estado 3, digito invalido')
                     self._limpar()
@@ -137,7 +141,7 @@ class AnalisadorLexico:
                 #Estado 6
                 else:
                     self._cadeia += self._char_atual
-                    self._estadoFinal("PALAVRA")
+                    return Token(2, self._cadeia)
             
             elif self._estado == 7:
                 if self._char_atual == '%':
@@ -145,8 +149,9 @@ class AnalisadorLexico:
                     self._estado = 8
                 #Estado 11
                 else:
-                    self._estadoFinal('/')
                     self._retrocesso()
+                    return Token(5, self._cadeia)
+                   
 
             elif self._estado == 8:
                 if self._char_atual == '/':
@@ -161,38 +166,41 @@ class AnalisadorLexico:
                     self._cadeia += self._char_atual
                 #Estado 10
                 elif self._char_atual == '\n':
-                    self._estadoFinal('COMENTARIO')
+                    self._limpar()
                 else:
                     self._cadeia += self._char_atual
-                    self._estadoFinal('COMENTARIO')
-                
+                    self._limpar()
+
+
             elif self._estado == 12:
-                self._estadoFinal(self._cadeia)
                 self._retrocesso()
+                return Token(5, self._cadeia)
+                
 
             elif self._estado == 13:
-                self._estadoFinal(self._cadeia)
-                self._retrocesso()
+                 self._retrocesso()
+                 return Token(4, self._cadeia)
+                
             
             elif self._estado == 14:
                 if self._ehCharUp(self._char_atual):
                     self._cadeia += self._char_atual
                     if self._ehEOF():
                         if self._cadeia in self._palavra_reservada:
-                            self._estadoFinal('PALAVRA RESERVADA')
+                            return Token(3, self._cadeia)
                         elif self._cadeia in self._operador_logico:
-                            self._estadoFinal('OPERADOR LOGICO')
+                            return Token(7, self._cadeia)
                         else:
                             print('ERROR PALAVRA RESERVADA ou OPERADOR LOGICO')
                             self._limpar()
                 #Estado 15
                 else:
                     if self._cadeia in self._palavra_reservada:
-                        self._estadoFinal('PALAVRA RESERVADA')
                         self._retrocesso()
+                        return Token(3, self._cadeia)
                     elif self._cadeia in self._operador_logico:
-                        self._estadoFinal('OPERADOR LOGICO')
                         self._retrocesso()
+                        return Token(7, self._cadeia)
                     else:
                         print('ERROR PALAVRA RESERVADA ou OPERADOR LOGICO')
                         self._limpar()
@@ -200,28 +208,28 @@ class AnalisadorLexico:
             elif self._estado == 16:
                 if self._char_atual == '?':
                     self._cadeia += self._char_atual
-                    self._estadoFinal(self._cadeia)
+                    return Token(8, self._cadeia)
 
             elif self._estado == 18:
                 #Estado 17
                 if self._char_atual == '?':
                     self._cadeia += self._char_atual
-                    self._estadoFinal(self._cadeia)
+                    return Token(8, self._cadeia)
                 #Estado 19
                 elif self._char_atual == '=':
                     self._cadeia += self._char_atual
                     if self._ehEOF():
-                        self._estadoFinal(self._cadeia)
+                        return Token(6, self._cadeia)
                     #Estado 20
                     else:
                         self._char_atual = self._proximoChar()
                         #Estado 20
                         if self._char_atual != '?':
-                            self._estadoFinal(self._cadeia)
+                            return Token(6, self._cadeia)
                         #Estado 17
                         else:
                             self._cadeia += self._char_atual
-                            self._estadoFinal(self._cadeia)
+                            return Token(8, self._cadeia)
                 #Estado 21
                 elif self._char_atual == '>':
                     self._cadeia += self._char_atual
@@ -229,7 +237,7 @@ class AnalisadorLexico:
                     #Estado 17
                     if self._char_atual == '?':
                         self._cadeia += self._char_atual
-                        self._estadoFinal(self._cadeia)
+                        return Token(8, self._cadeia)
                     else:
                         print('Erro estado 18 <>')
                         self._limpar()
@@ -238,7 +246,7 @@ class AnalisadorLexico:
                 #Estado 17
                 if self._char_atual == '?':
                     self._cadeia += self._char_atual
-                    self._estadoFinal(self._cadeia)
+                    return Token(8, self._cadeia)
                 #Estado 23
                 elif self._char_atual == '=':
                     self._cadeia += self._char_atual
@@ -250,7 +258,7 @@ class AnalisadorLexico:
                         #Estado 17
                         if self._char_atual == '?':
                             self._cadeia += self._char_atual
-                            self._estadoFinal(self._cadeia)
+                            return Token(8, self._cadeia)
                         else:
                             print('ERROR estado 22 >=x')
                             self._limpar()
