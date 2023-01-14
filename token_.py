@@ -1,3 +1,14 @@
+# Tipos de Token
+TK_IDENTIFICADOR     = 0
+TK_NUMERO            = 1
+TK_LITERAL           = 2
+TK_PALAVRA_RES       = 3
+TK_PONTUACAO         = 4 
+TK_OPERADOR_MAT      = 5
+TK_ATRIBUICAO        = 6
+TK_OPERADOR_LOG      = 7
+TK_OPERADOR_REL      = 8
+
 class Token:
     # TK_IDENTIFICADOR     = 0
     # TK_NUMERO            = 1

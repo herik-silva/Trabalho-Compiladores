@@ -1,4 +1,4 @@
-from token_ import Token
+from token_ import *
 
 class AnalisadorLexico:
     
@@ -60,7 +60,7 @@ class AnalisadorLexico:
                     self._cadeia += self._char_atual
                     self._estado = 1
                     if self._ehEOF():
-                        return Token(0, self._cadeia)
+                        return Token(TK_IDENTIFICADOR, self._cadeia)
 
                 elif self._ehDigito(self._char_atual):
                     self._cadeia += self._char_atual
