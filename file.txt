@@ -1,3 +1,5 @@
 PRINCIPAL #
-    INTEIRO var <= "sffdf";
+    INTEIRO var1 
+    INTEIRO var2
+    INTEIRO var3 <= "literal"
 #

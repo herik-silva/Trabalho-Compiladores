@@ -2,9 +2,14 @@ from analisador_lexico import AnalisadorLexico
 from analisador_sintatico import AnalisadorSintatico
 
 scanner = AnalisadorLexico("file.txt")
+
+
+
 ana = AnalisadorSintatico(scanner)
 
 ana.inicio()
+
+
 
 
 #while(not scanner._ehEOF()):

@@ -1,5 +1,5 @@
 from analisador_lexico import AnalisadorLexico
-from token_ import Token
+from token_ import *
 
 
 class AnalisadorSintatico:
@@ -8,51 +8,66 @@ class AnalisadorSintatico:
         self.lexico = lexico
         self.token = None
 
-
-    def inicio(self):
+    def conteudo(self):
         self.token = self.lexico.proximoToken()
-        if(self.token.text == 'PRINCIPAL'):
-            print(self.token, 'OK')
+        if(TK_STR[self.token.tipo] == 'LITERAL'):
+            print(self.token)
             self.token = self.lexico.proximoToken()
-            if(self.token.text == '#'):
-                print(self.token, 'ok')
-                self.listaComandos()
-
-    def listaComandos(self):
-        self.token = self.lexico.proximoToken()
-        if(self.token.TK_STR[self.token.type] == 'PALAVRA RESERVADA'
-            or self.token.TK_STR[self.token.type] == 'IDENTIFICADOR'
-            or self.token.TK_STR[self.token.type] == 'NUMERO'
-            or self.token.TK_STR[self.token.type] == 'PONTUACAO'):
-                self.comando()
-                self.listaComandosl()
-
-    def listaComandosl(self):
-        self.listaComandos()
-
-    def comando(self):
-        if(self.token.TK_STR[self.token.type] == 'PALAVRA RESERVADA'):
-            if(self.token.text == 'INTEIRO' or self.token.text == 'TEXTO'
-                or self.token.text == 'CONSTANTE'):
-                self.declaracao()
-        if(self.token.TK_STR[self.token.type] == 'IDENTIFICADOR'):
-            self.atribuicao()
-    
-    def declaracao(self):
-        self.tipo()
-        self.variavel()
-        self.declaracaol()
 
     def declaracaol(self):
         self.token = self.lexico.proximoToken()
-        if(self.token.TK_STR[self.token.type] == 'ATRIBUICAO'):
+        if(TK_STR[self.token.tipo] == 'ATRIBUICAO'):
             print(self.token)
             self.conteudo()
 
-    def conteudo(self):
+    def variavel(self):
         self.token = self.lexico.proximoToken()
-        if(self.token.TK_STR[self.token.type] == 'LITERAL'):
+        if(TK_STR[self.token.tipo] == 'IDENTIFICADOR'):
+            print(print(self.token))
+
+    def tipo(self):
+        print(self.token)
+
+    def declaracao(self):
+        if self.token.texto == 'INTEIRO' or self.token.texto == 'TEXTO':
+            self.tipo()
+            self.variavel()
+            self.declaracaol()
+
+    def comando(self):
+        if(self.token.texto == 'INTEIRO' or self.token.texto == 'TEXTO'
+            or self.token.texto == 'IDENTIFICADOR' or self.token.texto == '(' 
+            or self.token.texto == 'NUMERO'):
+                self.declaracao()
+
+    def escopo(self):
+        if self.token:
+            if(TK_STR[self.token.tipo] == 'PALAVRA RESERVADA'
+                or TK_STR[self.token.tipo] == 'IDENTIFICADOR'
+                or TK_STR[self.token.tipo] == 'NUMERO'):
+                    self.comando()
+                    self.escopo()
+            elif(self.token.texto == '#'):
+                print(self.token, '\nAnalise sintática ok.')
+
+    def inicio(self):
+        self.token = self.lexico.proximoToken()
+        if(self.token.texto == 'PRINCIPAL'):
             print(self.token)
+            self.token = self.lexico.proximoToken()
+            if(self.token.texto == '#'):
+                print(self.token)
+                self.token = self.lexico.proximoToken()
+                self.escopo()
+
+   
+                
+   
+      
+
+   
+
+   
 
     def atribuicao(self):
         if(self.token.TK_STR[self.token.type] == 'PALAVRA RESERVADA'):
@@ -60,13 +75,9 @@ class AnalisadorSintatico:
                 or self.token.text == 'CONSTANTE'):
                 self.declaracao()
 
-    def tipo(self):
-        print(self.token)
+   
     
-    def variavel(self):
-        self.token = self.lexico.proximoToken()
-        if(self.token.TK_STR[self.token.type] == 'IDENTIFICADOR'):
-            print(print(self.token))
+   
 
     def calMatematico(self):
         self.E()
