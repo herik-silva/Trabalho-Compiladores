@@ -53,5 +53,5 @@ class Token:
         self._linha = linha
     
     def __str__(self) -> str:
-        return "Token<tipo=" + TK_STR[self.tipo] + ", texto=" + self.texto + ">"
+        return "Token<tipo=" + TK_STR[self.tipo] + ", texto=" + self.texto + ">" 
     
