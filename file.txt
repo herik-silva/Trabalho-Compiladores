@@ -1,14 +1,12 @@
 PRINCIPAL #
-    INTEIRO int <= 123
-    int <= 1233
-    INTEIRO int2 <= 2344
-    "dkdfkjdff"
-    i <>? 2
-    /%/kfjfkdljfnkdsjjfmksdflj
-    PARA(inteiro; i <? 2; i <= i + 1)
-    SE(PARA(inteiro; i >? 2; i <= i + 1))
-    i<>?a
-    i>=?b
-    i+b
+SE a SENAO a SENAOSE()
+TEXTO ()
+INTEIRO
 
+a <? b
+b <=? a 
+a >? b
+a >=? b
+a <>? b
+a <= b
 #
