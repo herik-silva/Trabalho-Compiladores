@@ -2,7 +2,7 @@ from analisador_lexico import AnalisadorLexico
 from token_ import *
 from erro import Erro
 
-MAX_TOKEN = 2
+MAX_TOKEN = 2 # Máximo de tokens no vetor de token.
 
 class AnalisadorSintatico:
     token: Token
@@ -25,8 +25,8 @@ class AnalisadorSintatico:
         if len(self.token) == 0:
             return None
 
-        if tkIndex > MAX_TOKEN:
-            return self.token[1]
+        if tkIndex > MAX_TOKEN: # Retorna o último
+            return self.token[MAX_TOKEN - 1]
 
         return self.token[tkIndex-1]
 
