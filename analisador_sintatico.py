@@ -1,6 +1,8 @@
 from analisador_lexico import AnalisadorLexico
 from token_ import *
+from erro import Erro
 
+MAX_TOKEN = 2
 
 class AnalisadorSintatico:
     token: Token
@@ -12,14 +14,30 @@ class AnalisadorSintatico:
         if len(self.token):
             self.token.pop(0)
         
-        while len(self.token) < 2: 
+        while len(self.token) < MAX_TOKEN: 
             if not self.lexico._ehEOF(): 
                 self.token.append(self.lexico.proximoToken())
 
         print(self.token[0])
         print(self.token[1])
     
-    #def olharAdiante(self):
+    def olharAdiante(self, tkIndex: int) -> Token:
+        if len(self.token) == 0:
+            return None
+
+        if tkIndex > MAX_TOKEN:
+            return self.token[1]
+
+        return self.token[tkIndex-1]
+
+    def combinar(self, tk_tipo: TokenEnum):
+        tk_aux = self.olharAdiante(1)
+        if tk_aux.tipo == tk_tipo:
+            print("Match: ", tk_aux)
+            self.lerToken()
+        else:
+            raise Erro("Erro sintático...")
+
 
     def conteudo(self):
         self.token = self.olhar_adiante(2)
