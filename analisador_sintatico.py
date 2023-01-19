@@ -8,11 +8,19 @@ class AnalisadorSintatico:
         self.lexico = lexico
         self.token = None
 
+    def olhar_adiante(self, qtd: int):
+        i = 0
+        while(not self.lexico._ehEOF() and i<qtd):
+            print(self.lexico.proximoToken())
+            i= i +1
+
+        
     def conteudo(self):
-        self.token = self.lexico.proximoToken()
-        if(TK_STR[self.token.tipo] == 'LITERAL'):
-            print(self.token)
-            self.token = self.lexico.proximoToken()
+        self.token = self.olhar_adiante(2)
+        print(self.token)
+        """  if(TK_STR[self.token.tipo] == 'LITERAL'):
+                print(self.token)
+                self.token = self.lexico.proximoToken() """
 
     def declaracaol(self):
         self.token = self.lexico.proximoToken()

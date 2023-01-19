@@ -1,12 +1,7 @@
 PRINCIPAL #
-SE a SENAO a SENAOSE()
-TEXTO ()
-INTEIRO
-
-a <? b
-b <=? a 
-a >? b
-a >=? b
-a <>? b
-a <= b
+    INTEIRO v1
+    v1 <=2
+    SE (v1 >? 2)#
+        ESCREVA ("Maior")
+    #
 #
