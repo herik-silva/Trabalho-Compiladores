@@ -6,7 +6,6 @@ scanner = AnalisadorLexico("file.txt")
     print(scanner.proximoToken()) """
 
 sintatico = AnalisadorSintatico(scanner)
-sintatico.olhar_adiante(1)
-sintatico.conteudo()
+sintatico.lerToken()
 print('tabela', scanner.tabela_identificador)
 

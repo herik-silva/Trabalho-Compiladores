@@ -6,15 +6,21 @@ class AnalisadorSintatico:
     token: Token
     def __init__(self, lexico: AnalisadorLexico):
         self.lexico = lexico
-        self.token = None
+        self.token = []
 
-    def olhar_adiante(self, qtd: int):
-        i = 0
-        while(not self.lexico._ehEOF() and i<qtd):
-            print(self.lexico.proximoToken())
-            i= i +1
-
+    def lerToken(self):
+        if len(self.token):
+            self.token.pop(0)
         
+        while len(self.token) < 2: 
+            if not self.lexico._ehEOF(): 
+                self.token.append(self.lexico.proximoToken())
+
+        print(self.token[0])
+        print(self.token[1])
+    
+    #def olharAdiante(self):
+
     def conteudo(self):
         self.token = self.olhar_adiante(2)
         print(self.token)
