@@ -1,7 +1,9 @@
 PRINCIPAL #
-    INTEIRO v1
-    v1 <=2
-    SE (v1 >? 2)#
-        ESCREVA ("Maior")
-    #
+    INTEIRO inteiro1;
+    TEXTO texto1;
+    TEXTO texto2;
+    INTEIRO inteiro2;
+    texto1 <= "texto1";
+    texto2 <= "texto2";
+
 #
