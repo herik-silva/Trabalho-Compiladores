@@ -46,7 +46,6 @@ class AnalisadorSintatico:
     #escopo: comando escopo | ε
     def escopo(self):
         if self.token.tipo == TokenEnum.TK_IDENTIFICADOR:
-            print('dfff',self.token)
             self.atribuicao()
             self.escopo()
         elif self.token.tipo == TokenEnum.TK_SE:
@@ -56,10 +55,10 @@ class AnalisadorSintatico:
          #   self.laco()
             self.escopo()
         elif self.token.tipo == TokenEnum.TK_LEIA:
-          #  self.entrada()
+            self.entrada()
             self.escopo()
         elif self.token.tipo == TokenEnum.TK_ESCREVA:
-           # self.saida()
+            self.saida()
             self.escopo()
         else:
             print('vazio')
@@ -74,5 +73,63 @@ class AnalisadorSintatico:
     def conteudo(self):
         if self.token.tipo == TokenEnum.TK_LITERAL:
             self.aceitaToken(TokenEnum.TK_LITERAL)
-        
+        elif self.token.tipo == TokenEnum.TK_ABPARENTESE or self.token.tipo == TokenEnum.TK_IDENTIFICADOR or self.token.tipo == TokenEnum.TK_NUMERO:
+            self.expressaoAritmetica()
+        else: 
+            pass
+    def expressaoAritmetica(self):
+        self.termo()
+        self.expressao()
 
+    def termo(self):
+        self.fator()
+        self.termo2()
+    
+    def expressao(self):
+        if(self.token.tipo == TokenEnum.TK_MAISMENOS):
+            self.aceitaToken(TokenEnum.TK_MAISMENOS)
+            self.termo()
+            self.expressao()
+        else:
+            pass 
+    
+    def termo2(self):
+        if(self.token.tipo == TokenEnum.TK_MULTDIVISAO):
+            self.aceitaToken(TokenEnum.TK_MULTDIVISAO)
+            self.fator()
+            self.termo2()
+        elif(self.token.tipo == TokenEnum.TK_MOD):
+            self.aceitaToken(TokenEnum.TK_MOD)
+            self.fator()
+            self.termo2()
+        else: 
+            pass
+    def fator(self):
+        if(self.token.tipo == TokenEnum.TK_ABPARENTESE):
+            self.aceitaToken(TokenEnum.TK_ABPARENTESE)
+            self.expressaoAritmetica()
+            self.aceitaToken(TokenEnum.TK_FCHPARENTESE)
+        elif(self.token.tipo == TokenEnum.TK_IDENTIFICADOR):
+            self.aceitaToken(TokenEnum.TK_IDENTIFICADOR)
+        elif(self.token.tipo == TokenEnum.TK_NUMERO):
+            self.aceitaToken(TokenEnum.TK_NUMERO)
+        else:
+            print("ERRO no Fator")
+
+    def entrada(self):
+        self.aceitaToken(TokenEnum.TK_LEIA)
+        self.aceitaToken(TokenEnum.TK_ABPARENTESE)
+        self.aceitaToken(TokenEnum.TK_IDENTIFICADOR)
+        self.aceitaToken(TokenEnum.TK_FCHPARENTESE)
+        self.aceitaToken(TokenEnum.TK_DELIMITADOR)
+    
+    def saida(self):
+        self.aceitaToken(TokenEnum.TK_ESCREVA)
+        self.aceitaToken(TokenEnum.TK_ABPARENTESE)
+        if(self.token.tipo == TokenEnum.TK_ABPARENTESE or self.token.tipo == TokenEnum.TK_IDENTIFICADOR or self.token.tipo == TokenEnum.TK_NUMERO):
+            self.expressaoAritmetica()
+        elif (self.token.tipo == TokenEnum.TK_LITERAL):
+            self.aceitaToken(TokenEnum.TK_LITERAL)
+
+        self.aceitaToken(TokenEnum.TK_FCHPARENTESE)
+        self.aceitaToken(TokenEnum.TK_DELIMITADOR)

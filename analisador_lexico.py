@@ -259,6 +259,8 @@ class AnalisadorLexico:
                     if self._ehNovaLinha(self._char_atual):
                         self._linha += 1
                         return Token(TokenEnum.TK_MULTDIVISAO, self._cadeia, self._linha - 1)
+                    else: 
+                        return Token(TokenEnum.TK_MULTDIVISAO, self._cadeia, self._linha - 1)
                    
 
             elif self._estado == 8:

@@ -4,6 +4,9 @@ PRINCIPAL #
     TEXTO texto2;
     INTEIRO inteiro2;
     texto1 <= "texto1";
-    texto2 <= "texto2";
-
+    /%/ texto2 <= "texto2";
+    texto3 <= (v1 / v2);
+    LEIA(v1);
+    ESCREVA(v2);
 #
+
