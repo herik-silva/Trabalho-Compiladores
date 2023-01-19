@@ -5,9 +5,6 @@ from erro import Erro
 class AnalisadorLexico:
 
     def __init__(self, path: str) -> None:
-        self._palavras_reservadas = ['PRINCIPAL', 'TEXTO', 'INTEIRO', 'SE', 'SENAO', 'SENAOSE', 'ENQUANTO', 'PARA', 'LEIA', 'ESCREVA', 'RETORNE']
-        self._booleano = ['VERDADEIRO', 'FALSO'] 
-        self._operador_logico = ['NAO', 'E', 'OU']
         self._pos_arquivo = 0 
         self._linha = 1
         self.tabela_identificador = {}

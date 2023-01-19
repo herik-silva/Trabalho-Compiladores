@@ -49,7 +49,7 @@ class AnalisadorSintatico:
             self.atribuicao()
             self.escopo()
         elif self.token.tipo == TokenEnum.TK_SE:
-        #    self.desvio()
+            self.desvio()
             self.escopo()
         elif (self.token.tipo == TokenEnum.TK_PARA or self.token == TokenEnum.TK_ENQUANTO or self.token == TokenEnum.TK_RETORNE):
          #   self.laco()
@@ -133,3 +133,38 @@ class AnalisadorSintatico:
 
         self.aceitaToken(TokenEnum.TK_FCHPARENTESE)
         self.aceitaToken(TokenEnum.TK_DELIMITADOR)
+
+    def desvio(self):
+        self.aceitaToken(TokenEnum.TK_SE)
+        self.aceitaToken(TokenEnum.TK_ABPARENTESE)
+        self.exp()
+        self.aceitaToken(TokenEnum.TK_FCHPARENTESE)
+        self.aceitaToken(TokenEnum.TK_CERQUILHA)
+        self.escopo()
+        self.desvio2()
+        self.aceitaToken(TokenEnum.TK_CERQUILHA)
+
+    def desvio2(self):
+        if(self.token.tipo == TokenEnum.TK_SENAO):
+            self.aceitaToken(TokenEnum.TK_SENAO)
+            self.desvio3()
+        else:
+            pass
+
+    def desvio3(self):
+        if(self.token.tipo == TokenEnum.TK_CERQUILHA):
+            self.aceitaToken(TokenEnum.TK_CERQUILHA)
+            self.escopo()
+            self.aceitaToken(TokenEnum.TK_CERQUILHA)
+        else:
+            self.desvio()
+
+    def exp(self):
+        if(self.token.tipo == TokenEnum.TK_VALORBOOL):
+            self.aceitaToken(TokenEnum.TK_VALORBOOL)
+        elif(self.token.tipo == TokenEnum.TK_NAO):
+            self.aceitaToken(TokenEnum.TK_NAO)
+        elif(self.token.tipo == TokenEnum.TK_E):
+            self.aceitaToken(TokenEnum.TK_E)
+        elif(self.token.tipo == TokenEnum.TK_OU):
+            self.aceitaToken(TokenEnum.TK_OU)
