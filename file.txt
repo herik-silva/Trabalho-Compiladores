@@ -8,7 +8,10 @@ PRINCIPAL #
     /%/ texto3 <= (v1 / v2);
     /%/ LEIA(v1);
     /%/ ESCREVA(v2);
-    SE(FALSO) #
-        ESCREVA("Hello World!");
-    #
+    /%/SE(FALSO) #
+       /%/ESCREVA("Hello World!");
+    /%/#
+
+    SE(id <? 1)## SENAOSE(id <? 2) ## SENAO ##
+
 #

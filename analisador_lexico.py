@@ -89,7 +89,6 @@ class AnalisadorLexico:
             raise Erro("Erro Léxico: Palavra reservada inválida '{}'.".format(cadeia), 
                             " Erro na linha {}.".format(linha))
 
-
     def _aceitaOperadorMat(self, cadeia, linha):
         if(cadeia == '+'):
             return Token(TokenEnum.TK_MAISMENOS, cadeia, linha)
@@ -256,8 +255,11 @@ class AnalisadorLexico:
                     if self._ehNovaLinha(self._char_atual):
                         self._linha += 1
                         return Token(TokenEnum.TK_MULTDIVISAO, self._cadeia, self._linha - 1)
+                    elif self._ehEspaco(self._char_atual):
+                        return Token(TokenEnum.TK_MULTDIVISAO, self._cadeia, self._linha)
                     else: 
-                        return Token(TokenEnum.TK_MULTDIVISAO, self._cadeia, self._linha - 1)
+                        self._retrocesso()
+                        return Token(TokenEnum.TK_MULTDIVISAO, self._cadeia, self._linha)
                    
 
             elif self._estado == 8:
