@@ -22,7 +22,7 @@ class AnalisadorLexico:
         return char >= 'a' and char <= 'z'
 
     def _ehSimbolo(self, char: chr):
-        return char == ';' or char == '(' or char == ')' or char == '#'
+        return char == ';' or char == '(' or char == ')' or char == '#' or char == "[" or char == "]"
 
     def _ehOperadorMat(self, char: chr):
         return char == '+' or char == '-' or char == '*' or char == '%' 
@@ -108,6 +108,12 @@ class AnalisadorLexico:
             return Token(TokenEnum.TK_FCHPARENTESE, cadeia, linha)
         elif(cadeia == '#'):
             return Token(TokenEnum.TK_CERQUILHA, cadeia, linha)
+        elif(cadeia == '['):
+            print("ACEITOU: ", cadeia)
+            return Token(TokenEnum.TK_ABCOLCHETE, cadeia, linha)
+        elif(cadeia == ']'):
+            print("ACEITOU: ", cadeia)
+            return Token(TokenEnum.TK_FCHCOLCHETE, cadeia, linha)
 
 
     def proximoToken(self):
@@ -118,6 +124,9 @@ class AnalisadorLexico:
                 return None
            
             if self._estado == 0:
+                if self._ehNovaLinha(self._char_atual):
+                    self._linha += 1
+
                 if self._ehCharLower(self._char_atual):
                     self._cadeia += self._char_atual
                     self._estado = 1

@@ -26,4 +26,6 @@ class TokenEnum(Enum):
     TK_OU            = 23       
     TK_NAO           = 24       
     TK_VALORBOOL     = 25               
-    TK_RELACIONAL    = 26               
+    TK_RELACIONAL    = 26     
+    TK_ABCOLCHETE    = 27
+    TK_FCHCOLCHETE   = 28          

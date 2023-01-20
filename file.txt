@@ -1,17 +1,3 @@
 PRINCIPAL #
-    /%/ INTEIRO inteiro1;
-    /%/ TEXTO texto1;
-    /%/ TEXTO texto2;
-    /%/ INTEIRO inteiro2;
-    /%/ texto1 <= "texto1";
-    /%/ texto2 <= "texto2";
-    /%/ texto3 <= (v1 / v2);
-    /%/ LEIA(v1);
-    /%/ ESCREVA(v2);
-    /%/SE(FALSO) #
-       /%/ESCREVA("Hello World!");
-    /%/#
-
-    SE(id <? 1)## SENAOSE(id <? 2) ## SENAO ##
-
+    SE([(1 + id) =? 2] E [id E id] E (v1+1)) ## 
 #

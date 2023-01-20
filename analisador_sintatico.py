@@ -154,14 +154,16 @@ class AnalisadorSintatico:
     def desvio(self):
         self.aceitaToken(TokenEnum.TK_SE)
         self.aceitaToken(TokenEnum.TK_ABPARENTESE)
+        print("OK ABRE PARENTESE!!!")
         self.exp()
         self.aceitaToken(TokenEnum.TK_FCHPARENTESE)
+        print("OK FECHOU PARENTESE!!!")
         self.aceitaToken(TokenEnum.TK_CERQUILHA)
         self.escopo()
         self.aceitaToken(TokenEnum.TK_CERQUILHA)
         self.desvio2()
     
-    #desvio2: SENAO # escopo # | SENAOSE # escopo # desvio2 | ε
+    #desvio2: SENAO # escopo # | SENAOSE(exp) # escopo # desvio2 | ε
     def desvio2(self):
         if(self.token.tipo == TokenEnum.TK_SENAO):
             self.aceitaToken(TokenEnum.TK_SENAO)
@@ -170,6 +172,9 @@ class AnalisadorSintatico:
             self.aceitaToken(TokenEnum.TK_CERQUILHA)
         elif(self.token.tipo == TokenEnum.TK_SENAOSE):
             self.aceitaToken(TokenEnum.TK_SENAOSE)
+            self.aceitaToken(TokenEnum.TK_ABPARENTESE)
+            self.exp()
+            self.aceitaToken(TokenEnum.TK_FCHPARENTESE)
             self.aceitaToken(TokenEnum.TK_CERQUILHA)
             self.escopo()
             self.aceitaToken(TokenEnum.TK_CERQUILHA)
@@ -182,6 +187,7 @@ class AnalisadorSintatico:
         if(self.token.tipo == TokenEnum.TK_VALORBOOL):
             self.aceitaToken(TokenEnum.TK_VALORBOOL)
         else:
+            print("DE EXP FUI PARA O LOGICO!!")
             self.logico()
        
     def logico(self):
@@ -216,31 +222,33 @@ class AnalisadorSintatico:
             self.relacional()
             
     def relacional(self):
-        if self.token.tipo == TokenEnum.TK_ABPARENTESE:
-            self.aceitaToken(TokenEnum.TK_ABPARENTESE)
-            if self.token.tipo == TokenEnum.TK_IDENTIFICADOR or self.token.tipo == TokenEnum.TK_NUMERO or self.token.tipo == TokenEnum.TK_LITERAL:
-                self.termoRelacional()
-            else:
-                self.logico()
+        if self.token.tipo == TokenEnum.TK_ABCOLCHETE:
+            self.aceitaToken(TokenEnum.TK_ABCOLCHETE)
+            self.logico()
+            self.aceitaToken(TokenEnum.TK_FCHCOLCHETE)
         else:
             self.termoRelacional()
-    
 
     def termoRelacional(self):
         self.conteudo()
         self.termoRelacional2()
 
     def termoRelacional2(self):
-        self.aceitaToken(TokenEnum.TK_RELACIONAL)
-        self.conteudo()
+        if self.token.tipo == TokenEnum.TK_RELACIONAL:
+            self.aceitaToken(TokenEnum.TK_RELACIONAL)
+            self.conteudo()
+        else:
+            pass
 
-   # laco: PARA (atribuicao termoRelacional ; identificado <= expressaoAritmetica) # escopo # | 
+   # laco: PARA (atribuicao conteudo simb_rel conteudo; identificado <= expressaoAritmetica) # escopo # | ENQUANTO( exp ) # escopo # | RETORNE
     def laco(self):
         if self.token.tipo == TokenEnum.TK_PARA:
             self.aceitaToken(TokenEnum.TK_PARA)
             self.aceitaToken(TokenEnum.TK_ABPARENTESE)
             self.atribuicao()
-            self.termoRelacional()
+            self.conteudo()
+            self.aceitaToken(TokenEnum.TK_RELACIONAL)
+            self.conteudo()
             self.aceitaToken(TokenEnum.TK_DELIMITADOR)
             self.aceitaToken(TokenEnum.TK_IDENTIFICADOR)
             self.aceitaToken(TokenEnum.TK_ATRIBUICAO)
@@ -257,8 +265,7 @@ class AnalisadorSintatico:
             self.aceitaToken(TokenEnum.TK_CERQUILHA)
             self.escopo()
             self.aceitaToken(TokenEnum.TK_CERQUILHA)
+        elif self.token.tipo == TokenEnum.TK_RETORNE:
+            self.aceitaToken(TokenEnum.TK_RETORNE)
         else:
-            pass
-
- 
-        
+            print("ERRO!")
