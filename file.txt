@@ -1,3 +1,6 @@
 PRINCIPAL #
-    SE([(1 + id) =? 2] E [id E id] E (v1+1)) ## 
+    INTEIRO i;
+    inti <= 123;
+    PARA(j<=2; j <? 2; k <= k + 1)#
+        ESCREVA(int);      
 #

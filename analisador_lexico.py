@@ -10,6 +10,7 @@ class AnalisadorLexico:
         self.tabela_identificador = {}
         arquivo = open(path, 'r')
         self._conteudo = arquivo.read()
+        self._conteudo = self._conteudo.strip()
         arquivo.close()
 
     def _ehDigito(self, char: chr):
@@ -290,7 +291,7 @@ class AnalisadorLexico:
             elif self._estado == 12:
                 if self._ehNovaLinha(self._char_atual):
                     self._linha += 1
-                    return self._aceitaOperadorMat(self._cadeia, self._linha)
+                    return self._aceitaOperadorMat(self._cadeia, self._linha - 1)
                 elif self._ehEspaco(self._char_atual):
                     return self._aceitaOperadorMat(self._cadeia, self._linha)
                 else:
@@ -301,7 +302,7 @@ class AnalisadorLexico:
             elif self._estado == 13:
                 if self._ehNovaLinha(self._char_atual):
                     self._linha += 1
-                    return self._aceitaSimbolo(self._cadeia, self._linha)
+                    return self._aceitaSimbolo(self._cadeia, self._linha - 1)
                 elif self._ehEspaco(self._char_atual):
                     return self._aceitaSimbolo(self._cadeia, self._linha)
                 else:
