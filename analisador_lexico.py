@@ -40,6 +40,7 @@ class AnalisadorLexico:
     def _proximoChar(self):
         if self._ehEOF():
             return None
+
         aux = self._conteudo[self._pos_arquivo]
         self._pos_arquivo += 1
         return aux
@@ -110,10 +111,8 @@ class AnalisadorLexico:
         elif(cadeia == '#'):
             return Token(TokenEnum.TK_CERQUILHA, cadeia, linha)
         elif(cadeia == '['):
-            print("ACEITOU: ", cadeia)
             return Token(TokenEnum.TK_ABCOLCHETE, cadeia, linha)
         elif(cadeia == ']'):
-            print("ACEITOU: ", cadeia)
             return Token(TokenEnum.TK_FCHCOLCHETE, cadeia, linha)
 
 
@@ -122,7 +121,7 @@ class AnalisadorLexico:
         while(True): 
             self._char_atual = self._proximoChar()
             if not self._char_atual:
-                return None
+                return Token(TokenEnum.TK_FIM, self._cadeia, self._linha)
            
             if self._estado == 0:
                 if self._ehNovaLinha(self._char_atual):
@@ -186,7 +185,6 @@ class AnalisadorLexico:
                 elif self._char_atual == '>':
                     self._cadeia += self._char_atual
                     self._estado = 22
-
 
             elif self._estado == 1:
                 if self._ehCharLower(self._char_atual) or self._ehCharUp(self._char_atual) or self._ehDigito(self._char_atual):

@@ -3,7 +3,6 @@ from token_ import *
 from enum_token import TokenEnum
 from erro import ErroSintatico
 
-
 class AnalisadorSintatico:
     token: Token
     def __init__(self, lexico: AnalisadorLexico):
@@ -13,12 +12,10 @@ class AnalisadorSintatico:
         self.lerToken()
 
     def lerToken(self):
-        if not self.lexico._ehEOF():
-            self.token = self.lexico.proximoToken()
+        self.token = self.lexico.proximoToken()
         
     def aceitaToken(self, tipo: TokenEnum):
         if self.token.tipo == tipo:
-            #print(self.token)
             self.lerToken()
             return True
         return False
@@ -97,7 +94,6 @@ class AnalisadorSintatico:
         else:
             self.instanciarErro('LITERAL, (, IDENTIFICADOR OU NUMERO')
        
-    
     #expressaoAritmetica: termo expressao
     def expressaoAritmetica(self):
         self.termo()
@@ -231,7 +227,6 @@ class AnalisadorSintatico:
             self.expressaoLogica()
             self.termoLogico()
        
-
     def expressaoLogica(self):
         self.expressaoLogica3()
         self.expressaoLogica2()
@@ -242,7 +237,6 @@ class AnalisadorSintatico:
             self.expressaoLogica3()
             self.expressaoLogica2()
        
-
     def expressaoLogica3(self):
         if self.token.tipo == TokenEnum.TK_NAO:
             self.aceitaToken(TokenEnum.TK_NAO)
@@ -258,7 +252,6 @@ class AnalisadorSintatico:
                 self.instanciarErro(')')
         else:
             self.termoRelacional()
-
 
     def termoRelacional(self):
         self.conteudo()
@@ -285,18 +278,26 @@ class AnalisadorSintatico:
             self.conteudo()
             if not self.aceitaToken(TokenEnum.TK_DELIMITADOR):
                 self.instanciarErro(';')
+
             if not self.aceitaToken(TokenEnum.TK_IDENTIFICADOR):
                 self.instanciarErro('IDENTIFICADOR')
+
             if not self.aceitaToken(TokenEnum.TK_ATRIBUICAO):
                 self.instanciarErro('ATRIBUIÇAÕ (<=)')
+
             self.expressaoAritmetica()
+
             if not self.aceitaToken(TokenEnum.TK_FCHPARENTESE):
                 self.instanciarErro(')')
+
             if not self.aceitaToken(TokenEnum.TK_CERQUILHA):
                 self.instanciarErro('#')
+
             self.escopo()
+
             if not self.aceitaToken(TokenEnum.TK_CERQUILHA):
                 self.instanciarErro('#')
+
         elif self.token.tipo == TokenEnum.TK_ENQUANTO:
             self.aceitaToken(TokenEnum.TK_ENQUANTO)
             if not self.aceitaToken(TokenEnum.TK_ABPARENTESE):
@@ -311,4 +312,3 @@ class AnalisadorSintatico:
                 self.instanciarErro('#')
         elif self.token.tipo == TokenEnum.TK_RETORNE:
             self.aceitaToken(TokenEnum.TK_RETORNE)
-            

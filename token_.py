@@ -2,7 +2,7 @@ from enum_token import TokenEnum
 
 class Token:
 
-    def __init__(self, tipo: TokenEnum, texto: str, linha: int) -> None:
+    def __init__(self, tipo: TokenEnum, texto: str, linha: int):
         self._tipo = tipo
         self._texto = texto
         self._linha = linha
@@ -33,4 +33,3 @@ class Token:
     
     def __str__(self) -> str:
         return "Token<  tipo= " + str(self.tipo) + ", conteudo= " + self.texto + "  >" 
-    

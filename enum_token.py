@@ -28,4 +28,5 @@ class TokenEnum(Enum):
     TK_VALORBOOL     = 25               
     TK_RELACIONAL    = 26     
     TK_ABCOLCHETE    = 27
-    TK_FCHCOLCHETE   = 28          
+    TK_FCHCOLCHETE   = 28
+    TK_FIM           = 29          
