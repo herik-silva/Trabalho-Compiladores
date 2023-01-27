@@ -26,28 +26,35 @@ class AnalisadorSintatico:
             return True
         return False
     
-    def instanciarErro(self, tk, tipo):
-        if not tipo:  
-            self.erro_sintatico.append(ErroSintatico('Erro sintático: Era esperado o TOKEN "{}", foi encontrado "{}".'.format(tk, self.token.texto),
-                                'Erro na linha {}'.format(self.token.linha)))
-            self.lerToken()
-        else: 
-             self.erro_semantico.append(ErroSintatico('Erro semântico: "{}".'.format(tk),
-                                'Erro na linha {}'.format(self.token.linha)))
+    def instanciarErro(self, tipo, token=None, mensagem=None):
+        if tipo != SINTATICO and tipo != SEMANTICO: # Tratamento de erro
+            raise Exception("Tipo de erro inválido. Era esperado 0 -> SINTATICO ou 1 -> SEMANTICO.")
         
+        linha = "Erro na linha {}".format(self.token.linha)
+
+        if not mensagem: # Prepara a mensagem padrão de acordo com o tipo do erro.
+            if tipo == SINTATICO:
+                mensagem = 'Erro sintático: Era esperado o TOKEN "{}", foi encontrado "{}".'.format(token, self.token.texto)
+            else:
+                mensagem = 'Erro semântico: "{}".'.format(token)
+
+        if tipo == SINTATICO:
+            self.erro_sintatico.append(ErroSintatico(mensagem, linha))
+        else:
+            self.erro_semantico.append(ErroSintatico(mensagem, linha))
     
     #inicio: PRINCIPAL # listaDeclaracao escopo #
     def inicio(self):
         if not self.aceitaToken(TokenEnum.TK_PRINCIPAL):
-            self.instanciarErro('PRINCIPAL', SINTATICO)
+            self.instanciarErro(SINTATICO, 'PRINCIPAL')
         if not self.aceitaToken(TokenEnum.TK_CERQUILHA):
-            self.instanciarErro('#', SINTATICO)
+            self.instanciarErro(SINTATICO, '#')
 
         self.listaDeclaracoes()
         self.escopo()
 
         if not self.aceitaToken(TokenEnum.TK_CERQUILHA):
-            self.instanciarErro('#', SINTATICO)
+            self.instanciarErro(SINTATICO, '#')
 
     #listaDeclaracao: declaracao listaDeclaracao | ε
     def listaDeclaracoes(self):
@@ -61,12 +68,12 @@ class AnalisadorSintatico:
         tk = self.token
         teste = False
         if not self.aceitaToken(TokenEnum.TK_TIPOVAR):
-            self.instanciarErro('INTEIRO OU TEXTO', SINTATICO)
+            self.instanciarErro(SINTATICO, 'INTEIRO OU TEXTO')
         else:
             aux.append(tk)
             tk = self.token 
         if not self.aceitaToken(TokenEnum.TK_IDENTIFICADOR):
-            self.instanciarErro('IDENTIFICADOR', SINTATICO)
+            self.instanciarErro(SINTATICO, 'IDENTIFICADOR')
         else:
             for var in self.tabela_variaveis:
                 if tk.texto == var[1].texto:
@@ -76,10 +83,10 @@ class AnalisadorSintatico:
                 aux.append(tk)
                 self.tabela_variaveis.append(aux)
             else: 
-                self.instanciarErro('Variavel {} já existente'.format(tk.texto), SEMANTICO)
+                self.instanciarErro(SEMANTICO, 'Variavel {} já existente'.format(tk.texto))
             
         if not self.aceitaToken(TokenEnum.TK_DELIMITADOR):
-            self.instanciarErro(';', SINTATICO)
+            self.instanciarErro(SINTATICO, ';')
     
     #escopo: comando escopo | ε
     def escopo(self):
@@ -116,20 +123,20 @@ class AnalisadorSintatico:
                     variavel = var[0] 
                     break
         if not teste:
-            self.instanciarErro('Variavel {} não foi declarada'.format(tk.texto), SEMANTICO)
+            self.instanciarErro(SEMANTICO, 'Variavel {} não foi declarada'.format(tk.texto))
 
         
         if not self.aceitaToken(TokenEnum.TK_ATRIBUICAO):
-            self.instanciarErro('ATRIBUIÇAO (<=)', SINTATICO)
+            self.instanciarErro(SINTATICO, 'ATRIBUIÇAO (<=)')
         
         if variavel:
           if self.token.tipo == TokenEnum.TK_LITERAL:
             if variavel.tipo != "LITERAL":
-                self.instanciarErro('Variavel do tipo INTEIRO {} não esperava um "texto" '.format(tk.texto), SEMANTICO)
+                self.instanciarErro(SEMANTICO, 'Variavel do tipo INTEIRO {} não esperava um "texto" '.format(tk.texto))
 
         self.conteudo()
         if not self.aceitaToken(TokenEnum.TK_DELIMITADOR):
-            self.instanciarErro(';', SINTATICO)
+            self.instanciarErro(SINTATICO, ';')
     
     #conteudo: palavra | expressaoAritmetica
     def conteudo(self):
@@ -138,7 +145,7 @@ class AnalisadorSintatico:
         elif self.token.tipo == TokenEnum.TK_ABPARENTESE or self.token.tipo == TokenEnum.TK_IDENTIFICADOR or self.token.tipo == TokenEnum.TK_NUMERO:
             self.expressaoAritmetica()
         else:
-            self.instanciarErro('LITERAL, (, IDENTIFICADOR OU NUMERO', SINTATICO)
+            self.instanciarErro(SINTATICO, 'LITERAL, (, IDENTIFICADOR OU NUMERO')
        
     #expressaoAritmetica: termo expressao
     def expressaoAritmetica(self):
@@ -175,59 +182,59 @@ class AnalisadorSintatico:
             self.aceitaToken(TokenEnum.TK_ABPARENTESE)
             self.expressaoAritmetica()
             if not self.aceitaToken(TokenEnum.TK_FCHPARENTESE):
-                self.instanciarErro(')', SINTATICO)
+                self.instanciarErro(SINTATICO, ')')
         elif(self.token.tipo == TokenEnum.TK_IDENTIFICADOR):
             self.aceitaToken(TokenEnum.TK_IDENTIFICADOR)
         elif(self.token.tipo == TokenEnum.TK_NUMERO):
             self.aceitaToken(TokenEnum.TK_NUMERO)
         else:
-            self.instanciarErro('(, IDENTIFICADOR ou NUMERO', SINTATICO)
+            self.instanciarErro(SINTATICO, '(, IDENTIFICADOR ou NUMERO')
 
     #entrada: LEIA( variavel );
     def entrada(self):
         self.aceitaToken(TokenEnum.TK_LEIA)
         if not self.aceitaToken(TokenEnum.TK_ABPARENTESE):
-            self.instanciarErro('(', SINTATICO)
+            self.instanciarErro(SINTATICO, '(')
         if not self.aceitaToken(TokenEnum.TK_IDENTIFICADOR):
-            self.instanciarErro('IDENTIFICADOR', SINTATICO)
+            self.instanciarErro(SINTATICO, 'IDENTIFICADOR')
         if not self.aceitaToken(TokenEnum.TK_FCHPARENTESE):
-            self.instanciarErro(')', SINTATICO)
+            self.instanciarErro(SINTATICO, ')',)
         if not self.aceitaToken(TokenEnum.TK_DELIMITADOR):
-            self.instanciarErro(';', SINTATICO)
+            self.instanciarErro(SINTATICO, ';')
     
     #saida: ESCREVA(expressaoAritmetica | palavra);
     def saida(self):
         self.aceitaToken(TokenEnum.TK_ESCREVA)
         if not self.aceitaToken(TokenEnum.TK_ABPARENTESE):
-            self.instanciarErro('(', SINTATICO)
+            self.instanciarErro(SINTATICO, '(')
         if(self.token.tipo == TokenEnum.TK_ABPARENTESE or self.token.tipo == TokenEnum.TK_IDENTIFICADOR or self.token.tipo == TokenEnum.TK_NUMERO):
             self.expressaoAritmetica()
         elif (self.token.tipo == TokenEnum.TK_LITERAL):
             self.aceitaToken(TokenEnum.TK_LITERAL)
         else:
-            self.instanciarErro('Algum símbolo', SINTATICO)
+            self.instanciarErro(SINTATICO, 'Algum símbolo')
 
         if not self.aceitaToken(TokenEnum.TK_FCHPARENTESE):
-            self.instanciarErro(')', SINTATICO)
+            self.instanciarErro(SINTATICO, ')')
         if not self.aceitaToken(TokenEnum.TK_DELIMITADOR):
-            self.instanciarErro(';', SINTATICO)
+            self.instanciarErro(SINTATICO, ';')
 
     #desvio: SE (exp) # escopo # desvio2
     def desvio(self):
         self.aceitaToken(TokenEnum.TK_SE)
         if not self.aceitaToken(TokenEnum.TK_ABPARENTESE):
-            self.instanciarErro('(', SINTATICO)
+            self.instanciarErro(SINTATICO, '(')
       
         self.exp()
         if not self.aceitaToken(TokenEnum.TK_FCHPARENTESE):
-            self.instanciarErro(')', SINTATICO)
+            self.instanciarErroSINTATICO, (')')
 
         if not self.aceitaToken(TokenEnum.TK_CERQUILHA):
-            self.instanciarErro('#', SINTATICO)
+            self.instanciarErro(SINTATICO, '#')
 
         self.escopo()
         if not self.aceitaToken(TokenEnum.TK_CERQUILHA):
-            self.instanciarErro('#', SINTATICO)
+            self.instanciarErro(SINTATICO, '#')
         self.desvio2()
     
     #desvio2: SENAO # escopo # | SENAOSE(exp) # escopo # desvio2 | ε
@@ -235,22 +242,22 @@ class AnalisadorSintatico:
         if(self.token.tipo == TokenEnum.TK_SENAO):
             self.aceitaToken(TokenEnum.TK_SENAO)
             if not self.aceitaToken(TokenEnum.TK_CERQUILHA):
-                self.instanciarErro('#', SINTATICO)
+                self.instanciarErro(SINTATICO, '#')
             self.escopo()
             if not self.aceitaToken(TokenEnum.TK_CERQUILHA):
-                self.instanciarErro('#', SINTATICO)
+                self.instanciarErro(SINTATICO, '#')
         elif(self.token.tipo == TokenEnum.TK_SENAOSE):
             self.aceitaToken(TokenEnum.TK_SENAOSE)
             if not self.aceitaToken(TokenEnum.TK_ABPARENTESE):
-                self.instanciarErro('(', SINTATICO)
+                self.instanciarErro(SINTATICO, '(')
             self.exp()
             if not self.aceitaToken(TokenEnum.TK_FCHPARENTESE):
-                self.instanciarErro(')', SINTATICO)
+                self.instanciarErro(SINTATICO, ')')
             if not self.aceitaToken(TokenEnum.TK_CERQUILHA):
-                self.instanciarErro('#', SINTATICO)
+                self.instanciarErro(SINTATICO, '#')
             self.escopo()
             if not self.aceitaToken(TokenEnum.TK_CERQUILHA):
-                self.instanciarErro('#', SINTATICO)
+                self.instanciarErro(SINTATICO, '#')
             self.desvio2()
     
     #exp: logico | VERDADEIRO | FALSO
@@ -261,7 +268,7 @@ class AnalisadorSintatico:
                 self.token.tipo == TokenEnum.TK_LITERAL or self.token.tipo == TokenEnum.TK_IDENTIFICADOR or self.token.tipo == TokenEnum.TK_NUMERO):
             self.logico()
         else:
-            self.instanciarErro('NAO, (, LITERAL, IDENTIFICADOR ou NUMERO', SINTATICO)
+            self.instanciarErro(SINTATICO, 'NAO, (, LITERAL, IDENTIFICADOR ou NUMERO')
        
     def logico(self):
         self.expressaoLogica()
@@ -295,7 +302,7 @@ class AnalisadorSintatico:
             self.aceitaToken(TokenEnum.TK_ABCOLCHETE)
             self.logico()
             if not self.aceitaToken(TokenEnum.TK_FCHCOLCHETE):
-                self.instanciarErro(')', SINTATICO)
+                self.instanciarErro(SINTATICO, ')')
         else:
             self.termoRelacional()
 
@@ -313,48 +320,48 @@ class AnalisadorSintatico:
         if self.token.tipo == TokenEnum.TK_PARA:
             self.aceitaToken(TokenEnum.TK_PARA)
             if not self.aceitaToken(TokenEnum.TK_ABPARENTESE):
-                self.instanciarErro('(', SINTATICO)
+                self.instanciarErro(SINTATICO, '(')
 
             self.atribuicao()
             self.conteudo()
 
             if not self.aceitaToken(TokenEnum.TK_RELACIONAL):
-                self.instanciarErro('RELACIONAL', SINTATICO)
+                self.instanciarErro(SINTATICO, 'RELACIONAL')
 
             self.conteudo()
             if not self.aceitaToken(TokenEnum.TK_DELIMITADOR):
-                self.instanciarErro(';', SINTATICO)
+                self.instanciarErro(SINTATICO, ';')
 
             if not self.aceitaToken(TokenEnum.TK_IDENTIFICADOR):
-                self.instanciarErro('IDENTIFICADOR', SINTATICO)
+                self.instanciarErro(SINTATICO, 'IDENTIFICADOR')
 
             if not self.aceitaToken(TokenEnum.TK_ATRIBUICAO):
-                self.instanciarErro('ATRIBUIÇAÕ (<=)', SINTATICO)
+                self.instanciarErro(SINTATICO, 'ATRIBUIÇAÕ (<=)')
 
             self.expressaoAritmetica()
 
             if not self.aceitaToken(TokenEnum.TK_FCHPARENTESE):
-                self.instanciarErro(')', SINTATICO)
+                self.instanciarErro(SINTATICO, ')')
 
             if not self.aceitaToken(TokenEnum.TK_CERQUILHA):
-                self.instanciarErro('#', SINTATICO)
+                self.instanciarErro(SINTATICO, '#')
 
             self.escopo()
 
             if not self.aceitaToken(TokenEnum.TK_CERQUILHA):
-                self.instanciarErro('#', SINTATICO)
+                self.instanciarErro(SINTATICO, '#')
 
         elif self.token.tipo == TokenEnum.TK_ENQUANTO:
             self.aceitaToken(TokenEnum.TK_ENQUANTO)
             if not self.aceitaToken(TokenEnum.TK_ABPARENTESE):
-                self.instanciarErro('(', SINTATICO)
+                self.instanciarErro(SINTATICO, '(')
             self.exp()
             if not self.aceitaToken(TokenEnum.TK_FCHPARENTESE):
-                self.instanciarErro(')', SINTATICO)
+                self.instanciarErro(SINTATICO, ')')
             if not self.aceitaToken(TokenEnum.TK_CERQUILHA):
-                self.instanciarErro('#', SINTATICO)
+                self.instanciarErro(SINTATICO, '#')
             self.escopo()
             if not self.aceitaToken(TokenEnum.TK_CERQUILHA):
-                self.instanciarErro('#', SINTATICO)
+                self.instanciarErro(SINTATICO, '#')
         elif self.token.tipo == TokenEnum.TK_RETORNE:
             self.aceitaToken(TokenEnum.TK_RETORNE)
