@@ -1,7 +1,6 @@
 PRINCIPAL #
     INTEIRO i;
-    inti <= 123;
-    PARA(j<=2; j <? 2; k <= k + 1)#
-        ESCREVA(int);
-    #
+    TEXTO j;
+    TEXTO i;
+    i <= "2";
 #

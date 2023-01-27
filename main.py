@@ -8,6 +8,11 @@ scanner = AnalisadorLexico("file.txt")
 sintatico = AnalisadorSintatico(scanner)
 sintatico.inicio()
 
-for i in sintatico.erro:
+
+
+for i in sintatico.erro_sintatico:
     print(i)
+
+for j in sintatico.erro_semantico:
+    print(j)
 
