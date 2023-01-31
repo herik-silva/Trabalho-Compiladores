@@ -1,6 +1,7 @@
 PRINCIPAL #
-    INTEIRO i;
     TEXTO j;
     TEXTO i;
-    i <= "2";
+    TEXTO x;
+    INTEIRO n;
+    i <= j + i;
 #
