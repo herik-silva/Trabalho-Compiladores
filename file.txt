@@ -1,7 +1,5 @@
 PRINCIPAL #
-    TEXTO j;
-    TEXTO i;
-    TEXTO x;
-    INTEIRO n;
-    i <= j + i;
+    INTEIRO i;
+    ESCREVA(i);
+    ESCREVA("PAR);
 #

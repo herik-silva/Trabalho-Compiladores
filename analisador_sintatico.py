@@ -15,13 +15,19 @@ class AnalisadorSintatico:
         self.erro_semantico = []
         self.tabela_variaveis = []
         self.lerToken()
-        self.variavel = None
+        self.tipo_variavel = None
         
+    def setarTipoVariavel(self):
+        if(self.token.tipo == TokenEnum.TK_TIPOVAR):
+            self.tipo_variavel = self.token
+            print(self.tipo_variavel.texto)
 
     def lerToken(self):
         self.token = self.lexico.proximoToken()
+        self.setarTipoVariavel()
         
     def aceitaToken(self, tipo: TokenEnum):
+
         if self.token.tipo == tipo:
             self.lerToken()
             return True
@@ -120,7 +126,8 @@ class AnalisadorSintatico:
             for var in self.tabela_variaveis:
                 if tk.texto == var[1].texto:
                     teste = True
-                    self.variavel = var[0] 
+                    self.tipo_variavel = var[0]
+                    print(self.tipo_variavel.texto) 
                     break
         if not teste:
             self.instanciarErro(SEMANTICO, 'Variavel {} não foi declarada'.format(tk.texto))
@@ -128,9 +135,9 @@ class AnalisadorSintatico:
         if not self.aceitaToken(TokenEnum.TK_ATRIBUICAO):
             self.instanciarErro(SINTATICO, 'ATRIBUIÇAO (<=)')
         
-        if self.variavel:
+        if self.tipo_variavel:
           if self.token.tipo == TokenEnum.TK_LITERAL:
-            if self.variavel.texto != "TEXTO" :
+            if self.tipo_variavel.texto != "TEXTO" :
                 self.instanciarErro(SEMANTICO, 'Variavel do tipo INTEIRO {} não esperava um "texto" '.format(tk.texto))
                   
         self.conteudo()
@@ -188,21 +195,22 @@ class AnalisadorSintatico:
             for var in self.tabela_variaveis:
                 if self.token.texto == var[1].texto:
                     teste = True
-                    tipoConteudo = var[0] 
+                    tipoConteudo = var[0]
                     break
             if not teste:
                 self.instanciarErro(SEMANTICO, 'Variavel {} não foi declarada'.format(self.token.texto))
-            
-            if tipoConteudo.texto == self.variavel.texto:
-                self.aceitaToken(TokenEnum.TK_IDENTIFICADOR)
             else:
-                self.instanciarErro(SEMANTICO, 'Variavel {} não é do tipo {}'.format(self.token.texto, self.variavel.texto))
-                self.aceitaToken(TokenEnum.TK_IDENTIFICADOR)
+                if tipoConteudo.texto == self.tipo_variavel.texto:
+                    self.aceitaToken(TokenEnum.TK_IDENTIFICADOR)
+                else:
+                    print("ERRO SEMANTICO")
+                    self.instanciarErro(SEMANTICO, 'Variavel {} não é do tipo {}'.format(self.token.texto, self.tipo_variavel.texto))
+                    self.aceitaToken(TokenEnum.TK_IDENTIFICADOR)
         elif(self.token.tipo == TokenEnum.TK_NUMERO):
-            if self.variavel.texto == "INTEIRO":
+            if self.tipo_variavel.texto == "INTEIRO":
                 self.aceitaToken(TokenEnum.TK_NUMERO)
             else:
-                self.instanciarErro(SEMANTICO, 'Conteudo {} não é do tipo {}'.format(self.token.texto, self.variavel.texto))
+                self.instanciarErro(SEMANTICO, 'Conteudo {} não é do tipo {}'.format(self.token.texto, self.tipo_variavel.texto))
                 self.aceitaToken(TokenEnum.TK_NUMERO)
         else:
             self.instanciarErro(SINTATICO, '(, IDENTIFICADOR ou NUMERO')
